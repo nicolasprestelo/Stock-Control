@@ -1,83 +1,181 @@
-﻿var produtos = new Dictionary<string, Produto>();
+﻿using System.Threading;
 
+var produtos = new Dictionary<string, Produto>();
 
+void MostrarMenu()
+{
+    Console.Clear();
+
+    Console.WriteLine("╔══════════════════════════════╗");
+    Console.WriteLine("║       Stock Control          ║");
+    Console.WriteLine("║   Sistema de Estoque v1.0    ║");
+    Console.WriteLine("╠══════════════════════════════╣");
+    Console.WriteLine("║ 1 - Cadastrar Produto        ║");
+    Console.WriteLine("║ 2 - Alterar Preço            ║");
+    Console.WriteLine("║ 3 - Adicionar Estoque        ║");
+    Console.WriteLine("║ 4 - Remover Estoque          ║");
+    Console.WriteLine("║ 5 - Listar Produtos          ║");
+    Console.WriteLine("║ 0 - Sair                     ║");
+    Console.WriteLine("╚══════════════════════════════╝");
+    Console.Write("Escolha uma opção: ");
+}
 void MenuInicial()
 {
-    Console.WriteLine("Bem-vindo ao controle de estoque de seus produtos!!");
-    Console.WriteLine("1 - Cadastrar produto");
-    Console.WriteLine("2 - Alterar preço");
-    Console.WriteLine("3 - Adicionar estoque");
-    Console.WriteLine("4 - Remover estoque");
-    Console.WriteLine("5 - Listar produtos");
-    Console.WriteLine("0 - Sair");
-    Console.Write("Digite a sua opção: ");
-    int resposta = int.Parse(Console.ReadLine());
+    MostrarMenu();
+
+    int.TryParse(Console.ReadLine(), out int resposta);
 
     switch (resposta)
     {
-        case 1: CadastroDeProdutos();
+        case 1:
+            CadastroDeProdutos();
             break;
-        case 2: AlteracaoDePreco();
+
+        case 2:
+            AlteracaoDePreco();
             break;
+
         case 3:
+            AdicionarEstoque();
             break;
+
         case 4:
+            RemoverEstoque();
             break;
+
         case 5:
-            break; 
-        case 6:
+            ListarProdutos();
+            break;
+
+        case 0:
+            Console.WriteLine("Encerrando programa...");
+            break;
+
+        default:
+            Console.WriteLine("Opção inválida.");
+            MensagemInicial();
             break;
     }
 }
 
 void CadastroDeProdutos()
 {
-    Thread.Sleep(2000);
+    Thread.Sleep(1000);
     Console.Clear();
 
     Console.Write("Nome do produto: ");
     string nome = Console.ReadLine();
-    Console.Write("Quantidade inicial em estoque: ");
-    int estoque = int.Parse(Console.ReadLine());
-    Produto novoProduto = new Produto(nome, estoque);
-    produtos.Add(nome, novoProduto);
 
-    limparConsole();
-    MenuInicial();
+    if (produtos.ContainsKey(nome))
+    {
+        Console.WriteLine("Produto já existe no cadastro.");
+        MensagemInicial();
+    }
+    else
+    {
+        Console.Write("Quantidade inicial em estoque: ");
+        int.TryParse(Console.ReadLine(), out int estoque);
+
+        Produto novoProduto = new Produto(nome, estoque);
+        produtos.Add(nome, novoProduto);
+
+        Console.WriteLine("Produto cadastrado com sucesso!!");
+        MensagemInicial();
+    }
 }
 
 void AlteracaoDePreco()
 {
-    Thread.Sleep(2000);  
+    Thread.Sleep(1000);  
     Console.Clear();
 
     Console.Write("Qual produto deseja alterar o preço? ");
     string nomeProduto = Console.ReadLine();
-    //Verificar se tem no dictionary
 
     if (produtos.ContainsKey(nomeProduto))
     {
         Produto produtoAlterarPreco = produtos[nomeProduto];
 
         Console.Write("Novo preço: ");
-        decimal novoPreco = decimal.Parse(Console.ReadLine());
-         produtoAlterarPreco.AlterarPreco(novoPreco);
-    }
 
-    //se nao, nao encontrou
+        if (decimal.TryParse(Console.ReadLine(), out decimal novoPreco))
+        {
+            produtoAlterarPreco.AlterarPreco(novoPreco);
+            Console.WriteLine("Preço alterado com sucesso!!");
+        }
+        else
+        {
+            Console.WriteLine("Preço inválido.");
+        }
+    }
     else
     {
         Console.WriteLine("Produto não encontrado.");
     }
 
-    limparConsole();
-    MenuInicial();
+    MensagemInicial();
 }
-void limparConsole()
+
+void AdicionarEstoque()
 {
-    Console.WriteLine("Digite qualquer tecla para voltar ao menu inicial: ");
+    Console.Write("Produto: ");
+    string verificarProduto = Console.ReadLine();
+
+    if (produtos.ContainsKey(verificarProduto))
+    {
+        Produto produtoAdicionar = produtos[verificarProduto];
+        Console.WriteLine("Quantidade: ");
+        int.TryParse(Console.ReadLine(), out int qtd);
+        produtoAdicionar.AdicionarEstoque(qtd);
+    }
+    else
+    {
+        Console.WriteLine("Produto não localizado. ");
+    }
+    MensagemInicial();
+}
+
+void RemoverEstoque()
+{
+    Console.Write("Produto: ");
+    string verificarProduto = Console.ReadLine();
+
+    if (produtos.ContainsKey(verificarProduto))
+    {
+        Produto produtoRemover = produtos[verificarProduto];
+
+        Console.WriteLine("Quantidade: ");
+        int.TryParse(Console.ReadLine(), out int qtd);
+
+        produtoRemover.RemoverEstoque(qtd);
+    }
+    else
+    {
+        Console.WriteLine("Produto não localizado. ");
+    }
+    MensagemInicial();
+}
+
+void ListarProdutos()
+{
+    if (produtos.Count == 0)
+    {
+        Console.WriteLine("Nenhum produto cadastrado.");
+    }
+    else
+    {
+        foreach (var produto in produtos)
+        {
+            produto.Value.ExibirInformacoes();
+        }
+    }
+    MensagemInicial();
+}
+void MensagemInicial()
+{
+    Console.WriteLine("Pressione qualquer tecla para voltar ao menu inicial: ");
     Console.ReadKey();
-    Thread.Sleep(2000);
     Console.Clear();
+    MenuInicial() ;
 }
 MenuInicial();
